@@ -1,13 +1,11 @@
 {
-   "id": "YOUR-APP-ID-HERE",
-   "name": "job-financials-pl",
+   "name": "budget-forecast-consolidated-pl",
    "version": "0.0.1",
-   "datasetsMapping": [
+   "mapping": [
       {
+         "dataSetId": "a466c770-17ad-4738-80e4-a2d90c8139df",
          "alias": "dataset0",
-         "dataSetId": "07b8531c-a35f-4ddd-b93d-a1b7aa2e6ada",
-         "fields": [],
-         "dql": null
+         "fields": []
       }
    ],
    "size": {
