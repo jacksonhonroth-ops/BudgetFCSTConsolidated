@@ -34,11 +34,11 @@ var subcategoryToCategory = {
   'Workers Comp': 'Benefits & Taxes',
   'Taxes': 'Benefits & Taxes',
 
-  // Supplies & Materials
-  'Supplies': 'Supplies & Materials',
-  'Materials': 'Supplies & Materials',
-  'Equipment': 'Supplies & Materials',
-  'Tools': 'Supplies & Materials',
+  // Supplies & Material
+  'Supplies': 'Supplies & Material',
+  'Materials': 'Supplies & Material',
+  'Equipment': 'Supplies & Material',
+  'Tools': 'Supplies & Material',
 
   // Contract Expenses
   'Subcontractor': 'Contract Expenses',
@@ -56,7 +56,7 @@ function getCategoryFromSubcategory(subcategory) {
   if (upper.indexOf('REVENUE') > -1) return 'Service Revenue';
   if (upper.indexOf('LABOR') > -1 || upper.indexOf('WAGE') > -1 || upper.indexOf('SALARY') > -1) return 'Total Labor';
   if (upper.indexOf('BENEFIT') > -1 || upper.indexOf('TAX') > -1 || upper.indexOf('INSURANCE') > -1) return 'Benefits & Taxes';
-  if (upper.indexOf('SUPPLY') > -1 || upper.indexOf('SUPPLIE') > -1 || upper.indexOf('MATERIAL') > -1 || upper.indexOf('EQUIPMENT') > -1) return 'Supplies & Materials';
+  if (upper.indexOf('SUPPLY') > -1 || upper.indexOf('SUPPLIE') > -1 || upper.indexOf('MATERIAL') > -1 || upper.indexOf('EQUIPMENT') > -1) return 'Supplies & Material';
   if (upper.indexOf('SUBCONTRACT') > -1 || upper.indexOf('CONTRACT') > -1 || upper.indexOf('OUTSIDE') > -1) return 'Contract Expenses';
   return null;
 }
@@ -329,7 +329,7 @@ function processDataFast() {
     'Service Revenue': new Array(12).fill(0),
     'Total Labor': new Array(12).fill(0),
     'Benefits & Taxes': new Array(12).fill(0),
-    'Supplies & Materials': new Array(12).fill(0),
+    'Supplies & Material': new Array(12).fill(0),
     'Contract Expenses': new Array(12).fill(0)
   };
   var subTotals = { 'Service Revenue': {}, 'Total Labor': {} };
@@ -375,7 +375,7 @@ function processDataFast() {
     var rev = totals['Service Revenue'][m];
     var labor = totals['Total Labor'][m];
     var benefits = totals['Benefits & Taxes'][m];
-    var supplies = totals['Supplies & Materials'][m];
+    var supplies = totals['Supplies & Material'][m];
     var contract = totals['Contract Expenses'][m];
     var grossMargin = rev - labor - benefits - supplies;
     var gcm = grossMargin - contract;
@@ -615,7 +615,7 @@ function buildPLTable() {
     { name: 'Service Revenue', display: 'Service Revenue', type: 'expandable' },
     { name: 'Total Labor', display: 'Total Labor', type: 'expandable' },
     { name: 'Benefits & Taxes', display: 'Benefits & Taxes', type: 'data' },
-    { name: 'Supplies & Materials', display: 'Supplies & Materials', type: 'data' },
+    { name: 'Supplies & Material', display: 'Supplies & Material', type: 'data' },
     { name: 'Contract Expenses', display: 'Contract Expenses', type: 'data' },
     { name: 'Gross Contribution Margin', display: 'Gross Contribution Margin', type: 'subtotal' },
     { name: 'GCM %', display: 'GCM %', type: 'subtotal' }
