@@ -198,7 +198,7 @@ function loadAllData() {
             'Amount': amt,
             'SOURCE': r['SOURCE'],
             'Region': r['Region'],
-            'Operations Lead': r['Operations Lead'] || '',
+            'Ops Lead': r['Ops Lead'] || '',
             'Parent Account': r['Parent Account'],
             'JobNumber': r['JobNumber'],
             'JobDescription': r['JobDescription'] || r['Job Description'] || '',
@@ -290,7 +290,7 @@ function handleDataLoaded(data) {
 // ==============================================
 function cacheUniqueValues() {
   uniqueValuesCache = {
-    'YEAR': {}, 'Region': {}, 'Operations Lead': {},
+    'YEAR': {}, 'Region': {}, 'Ops Lead': {},
     'Parent Account': {}, 'JobNumber': {}, 'JobLabels': {}, 'SOURCE': {}
   };
   for (var i = 0; i < allData.length; i++) {
@@ -298,8 +298,8 @@ function cacheUniqueValues() {
     var year = getYearFromDate(row['GLPostingDate']);
     if (year) uniqueValuesCache['YEAR'][year] = true;
     if (row['Region']) uniqueValuesCache['Region'][row['Region']] = true;
-    if (row['Operations Lead'] && isValidOpsLead(row['Operations Lead'])) {
-      uniqueValuesCache['Operations Lead'][row['Operations Lead']] = true;
+    if (row['Ops Lead'] && isValidOpsLead(row['Ops Lead'])) {
+      uniqueValuesCache['Ops Lead'][row['Ops Lead']] = true;
     }
     if (row['Parent Account']) uniqueValuesCache['Parent Account'][row['Parent Account']] = true;
     if (row['SOURCE']) uniqueValuesCache['SOURCE'][row['SOURCE']] = true;
@@ -316,7 +316,7 @@ function applyExternalFilters(filters) {
   if (filters && filters.length > 0) {
     filters.forEach(function(f) {
       if (f.column === 'Region' && f.values.length > 0) currentRegions = f.values;
-      if (f.column === 'Operations Lead' && f.values.length > 0) currentOpsLeads = f.values;
+      if (f.column === 'Ops Lead' && f.values.length > 0) currentOpsLeads = f.values;
       if (f.column === 'Parent Account' && f.values.length > 0) currentParentAccounts = f.values;
       if (f.column === 'JobNumber' && f.values.length > 0) currentJobs = f.values;
     });
@@ -348,7 +348,7 @@ function processDataFast() {
     if (rowYear !== currentYear) continue;
     if (row['SOURCE'] !== currentSource) continue;
     if (hasRegionFilter && currentRegions.indexOf(row['Region']) === -1) continue;
-    if (hasOpsFilter && currentOpsLeads.indexOf(row['Operations Lead']) === -1) continue;
+    if (hasOpsFilter && currentOpsLeads.indexOf(row['Ops Lead']) === -1) continue;
     if (hasParentAccountFilter && currentParentAccounts.indexOf(row['Parent Account']) === -1) continue;
     if (hasJobFilter && currentJobs.indexOf(row['JobNumber']) === -1) continue;
 
@@ -407,8 +407,8 @@ function getFilteredUniqueValues(field) {
     if (rowYear !== currentYear) continue;
     if (row['SOURCE'] !== currentSource) continue;
     if (field !== 'Region' && hasRegionFilter && currentRegions.indexOf(row['Region']) === -1) continue;
-    if (field !== 'Operations Lead' && field !== 'Region' && hasOpsFilter && currentOpsLeads.indexOf(row['Operations Lead']) === -1) continue;
-    if (field !== 'Parent Account' && field !== 'Operations Lead' && field !== 'Region' && hasParentAccountFilter && currentParentAccounts.indexOf(row['Parent Account']) === -1) continue;
+    if (field !== 'Ops Lead' && field !== 'Region' && hasOpsFilter && currentOpsLeads.indexOf(row['Ops Lead']) === -1) continue;
+    if (field !== 'Parent Account' && field !== 'Ops Lead' && field !== 'Region' && hasParentAccountFilter && currentParentAccounts.indexOf(row['Parent Account']) === -1) continue;
     if (row[field]) unique[row[field]] = true;
   }
   return Object.keys(unique).sort();
@@ -547,7 +547,7 @@ function buildPLTable() {
 
   var years = Object.keys(uniqueValuesCache['YEAR']).sort();
   var regions = getFilteredUniqueValues('Region');
-  var opsLeads = getFilteredUniqueValues('Operations Lead').filter(function(o) { return isValidOpsLead(o); });
+  var opsLeads = getFilteredUniqueValues('Ops Lead').filter(function(o) { return isValidOpsLead(o); });
 
   var h = [];
 
