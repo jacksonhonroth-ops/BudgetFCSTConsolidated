@@ -190,6 +190,9 @@ function loadAllData() {
           var subcat = r['P&L Subcategory'] || '';
           var category = r['P&L Category'] || getCategoryFromSubcategory(subcat);
 
+          // Normalize category name (FCST uses "Supplies & Materials", Budget uses "Supplies & Material")
+          if (category === 'Supplies & Materials') category = 'Supplies & Material';
+
           allRows.push({
             'GLPostingDate': dt,
             'Amount': amt,
@@ -332,7 +335,7 @@ function processDataFast() {
     'Supplies & Material': new Array(12).fill(0),
     'Contract Expenses': new Array(12).fill(0)
   };
-  var subTotals = { 'Service Revenue': {}, 'Total Labor': {} };
+  var subTotals = { 'Service Revenue': {}, 'Total Labor': {}, 'Supplies & Material': {} };
 
   var hasRegionFilter = currentRegions.length > 0;
   var hasOpsFilter = currentOpsLeads.length > 0;
@@ -358,7 +361,7 @@ function processDataFast() {
     var val = row['Amount'] || 0;
     totals[category][monthIndex] += val;
 
-    if (category === 'Service Revenue' || category === 'Total Labor') {
+    if (category === 'Service Revenue' || category === 'Total Labor' || category === 'Supplies & Material') {
       var subCat = row['P&L Subcategory'] || row['Metrics'] || 'Other';
       if (!subTotals[category][subCat]) {
         subTotals[category][subCat] = new Array(12).fill(0);
@@ -615,7 +618,7 @@ function buildPLTable() {
     { name: 'Service Revenue', display: 'Service Revenue', type: 'expandable' },
     { name: 'Total Labor', display: 'Total Labor', type: 'expandable' },
     { name: 'Benefits & Taxes', display: 'Benefits & Taxes', type: 'data' },
-    { name: 'Supplies & Material', display: 'Supplies & Material', type: 'data' },
+    { name: 'Supplies & Material', display: 'Supplies & Material', type: 'expandable' },
     { name: 'Contract Expenses', display: 'Contract Expenses', type: 'data' },
     { name: 'Gross Contribution Margin', display: 'Gross Contribution Margin', type: 'subtotal' },
     { name: 'GCM %', display: 'GCM %', type: 'subtotal' }
