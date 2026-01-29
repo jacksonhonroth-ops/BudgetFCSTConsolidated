@@ -6,8 +6,60 @@
 
 var monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 var allData = [];
-var currentYear = 2025;
+var currentYear = 2026;
 var currentSource = 'OPS_FIN_BUDGET';
+
+// --- Subcategory to Category mapping ---
+// (This dataset has P&L Subcategory but not P&L Category Name)
+var subcategoryToCategory = {
+  // Service Revenue
+  'Self-Perform Revenue': 'Service Revenue',
+  'Subcontract Revenue': 'Service Revenue',
+  'T&M Revenue': 'Service Revenue',
+  'Other Revenue': 'Service Revenue',
+  'Revenue': 'Service Revenue',
+
+  // Total Labor
+  'Direct Labor': 'Total Labor',
+  'Indirect Labor': 'Total Labor',
+  'Labor': 'Total Labor',
+  'Overtime': 'Total Labor',
+  'Wages': 'Total Labor',
+  'Salaries': 'Total Labor',
+
+  // Benefits & Taxes
+  'Benefits': 'Benefits & Taxes',
+  'Payroll Taxes': 'Benefits & Taxes',
+  'Health Insurance': 'Benefits & Taxes',
+  'Workers Comp': 'Benefits & Taxes',
+  'Taxes': 'Benefits & Taxes',
+
+  // Supplies & Materials
+  'Supplies': 'Supplies & Materials',
+  'Materials': 'Supplies & Materials',
+  'Equipment': 'Supplies & Materials',
+  'Tools': 'Supplies & Materials',
+
+  // Contract Expenses
+  'Subcontractor': 'Contract Expenses',
+  'Subcontractor Costs': 'Contract Expenses',
+  'Contract': 'Contract Expenses',
+  'Outside Services': 'Contract Expenses'
+};
+
+function getCategoryFromSubcategory(subcategory) {
+  if (!subcategory) return null;
+  // Direct match
+  if (subcategoryToCategory[subcategory]) return subcategoryToCategory[subcategory];
+  // Partial match (case insensitive)
+  var upper = subcategory.toUpperCase();
+  if (upper.indexOf('REVENUE') > -1) return 'Service Revenue';
+  if (upper.indexOf('LABOR') > -1 || upper.indexOf('WAGE') > -1 || upper.indexOf('SALARY') > -1) return 'Total Labor';
+  if (upper.indexOf('BENEFIT') > -1 || upper.indexOf('TAX') > -1 || upper.indexOf('INSURANCE') > -1) return 'Benefits & Taxes';
+  if (upper.indexOf('SUPPLY') > -1 || upper.indexOf('SUPPLIE') > -1 || upper.indexOf('MATERIAL') > -1 || upper.indexOf('EQUIPMENT') > -1) return 'Supplies & Materials';
+  if (upper.indexOf('SUBCONTRACT') > -1 || upper.indexOf('CONTRACT') > -1 || upper.indexOf('OUTSIDE') > -1) return 'Contract Expenses';
+  return null;
+}
 var currentRegions = [];
 var currentOpsLeads = [];
 var currentParentAccounts = [];
@@ -130,17 +182,25 @@ function loadAllData() {
           var dt = r['GLPostingDate'];
           // Skip rows before 2025
           if (dt && String(dt).substring(0, 4) < '2025') continue;
+          // Skip rows with null/zero amounts
+          var amt = r['Amount'];
+          if (amt === null || amt === undefined) continue;
+
+          // Derive category from subcategory if needed
+          var subcat = r['P&L Subcategory'] || '';
+          var category = r['P&L Category Name'] || getCategoryFromSubcategory(subcat);
+
           allRows.push({
             'GLPostingDate': dt,
-            'Amount': r['Amount'],
+            'Amount': amt,
             'SOURCE': r['SOURCE'],
             'Region': r['Region'],
-            'Operations Lead': r['Operations Lead'],
+            'Operations Lead': r['Operations Lead'] || '',
             'Parent Account': r['Parent Account'],
             'JobNumber': r['JobNumber'],
             'JobDescription': r['JobDescription'] || r['Job Description'] || '',
-            'P&L Category Name': r['P&L Category Name'],
-            'P&L Subcategory': r['P&L Subcategory'],
+            'P&L Category Name': category,
+            'P&L Subcategory': subcat,
             'Metrics': r['Metrics']
           });
         }
@@ -188,15 +248,18 @@ function handleDataLoaded(data) {
     console.log('[PL] Column names:', Object.keys(data[0]));
     console.log('[PL] First row sample:', JSON.stringify(data[0], null, 2));
 
-    // Debug: find all unique SOURCE values
+    // Debug: find all unique values
     var sourcesFound = {};
     var categoriesFound = {};
-    for (var i = 0; i < Math.min(data.length, 10000); i++) {
+    var subcategoriesFound = {};
+    for (var i = 0; i < data.length; i++) {
       if (data[i]['SOURCE']) sourcesFound[data[i]['SOURCE']] = true;
       if (data[i]['P&L Category Name']) categoriesFound[data[i]['P&L Category Name']] = true;
+      if (data[i]['P&L Subcategory']) subcategoriesFound[data[i]['P&L Subcategory']] = true;
     }
     console.log('[PL] SOURCE values found:', Object.keys(sourcesFound));
-    console.log('[PL] P&L Categories found:', Object.keys(categoriesFound));
+    console.log('[PL] P&L Categories found (derived):', Object.keys(categoriesFound));
+    console.log('[PL] P&L Subcategories found:', Object.keys(subcategoriesFound));
 
     allData = data;
     cacheUniqueValues();
