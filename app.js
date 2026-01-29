@@ -10,7 +10,7 @@ var currentYear = 2026;
 var currentSource = 'OPS_FIN_BUDGET';
 
 // --- Subcategory to Category mapping ---
-// (This dataset has P&L Subcategory but not P&L Category Name)
+// (This dataset has P&L Subcategory but not P&L Category)
 var subcategoryToCategory = {
   // Service Revenue
   'Self-Perform Revenue': 'Service Revenue',
@@ -188,7 +188,7 @@ function loadAllData() {
 
           // Derive category from subcategory if needed
           var subcat = r['P&L Subcategory'] || '';
-          var category = r['P&L Category Name'] || getCategoryFromSubcategory(subcat);
+          var category = r['P&L Category'] || getCategoryFromSubcategory(subcat);
 
           allRows.push({
             'GLPostingDate': dt,
@@ -199,7 +199,7 @@ function loadAllData() {
             'Parent Account': r['Parent Account'],
             'JobNumber': r['JobNumber'],
             'JobDescription': r['JobDescription'] || r['Job Description'] || '',
-            'P&L Category Name': category,
+            'P&L Category': category,
             'P&L Subcategory': subcat,
             'Metrics': r['Metrics']
           });
@@ -254,7 +254,7 @@ function handleDataLoaded(data) {
     var subcategoriesFound = {};
     for (var i = 0; i < data.length; i++) {
       if (data[i]['SOURCE']) sourcesFound[data[i]['SOURCE']] = true;
-      if (data[i]['P&L Category Name']) categoriesFound[data[i]['P&L Category Name']] = true;
+      if (data[i]['P&L Category']) categoriesFound[data[i]['P&L Category']] = true;
       if (data[i]['P&L Subcategory']) subcategoriesFound[data[i]['P&L Subcategory']] = true;
     }
     console.log('[PL] SOURCE values found:', Object.keys(sourcesFound));
@@ -349,7 +349,7 @@ function processDataFast() {
     if (hasParentAccountFilter && currentParentAccounts.indexOf(row['Parent Account']) === -1) continue;
     if (hasJobFilter && currentJobs.indexOf(row['JobNumber']) === -1) continue;
 
-    var category = row['P&L Category Name'];
+    var category = row['P&L Category'];
     if (!totals[category]) continue;
 
     var monthIndex = getMonthIndex(row['GLPostingDate']);
