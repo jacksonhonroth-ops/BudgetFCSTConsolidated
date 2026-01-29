@@ -1,0 +1,18 @@
+{
+   "id": "YOUR-APP-ID-HERE",
+   "name": "job-financials-pl",
+   "version": "0.0.1",
+   "datasetsMapping": [
+      {
+         "alias": "dataset0",
+         "dataSetId": "07b8531c-a35f-4ddd-b93d-a1b7aa2e6ada",
+         "fields": [],
+         "dql": null
+      }
+   ],
+   "size": {
+      "width": 6,
+      "height": 3
+   },
+   "fullpage": true
+}
