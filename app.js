@@ -185,8 +185,24 @@ function handleDataLoaded(data) {
     if (data.length === 0) { showStatus('Dataset has 0 rows.', true); return; }
 
     console.log('[PL] Rows: ' + data.length + ', Columns: ' + Object.keys(data[0]).length);
+    console.log('[PL] Column names:', Object.keys(data[0]));
+    console.log('[PL] First row sample:', JSON.stringify(data[0], null, 2));
+
+    // Debug: find all unique SOURCE values
+    var sourcesFound = {};
+    var categoriesFound = {};
+    for (var i = 0; i < Math.min(data.length, 10000); i++) {
+      if (data[i]['SOURCE']) sourcesFound[data[i]['SOURCE']] = true;
+      if (data[i]['P&L Category Name']) categoriesFound[data[i]['P&L Category Name']] = true;
+    }
+    console.log('[PL] SOURCE values found:', Object.keys(sourcesFound));
+    console.log('[PL] P&L Categories found:', Object.keys(categoriesFound));
+
     allData = data;
     cacheUniqueValues();
+
+    console.log('[PL] Cached SOURCE values:', Object.keys(uniqueValuesCache['SOURCE']));
+    console.log('[PL] Cached YEARS:', Object.keys(uniqueValuesCache['YEAR']));
 
     var yearsFound = Object.keys(uniqueValuesCache['YEAR']);
     if (yearsFound.length === 0) {
