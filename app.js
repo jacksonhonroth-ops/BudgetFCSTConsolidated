@@ -338,6 +338,7 @@ function processDataFast() {
   var subTotals = { 'Service Revenue': {}, 'Total Labor': {}, 'Supplies & Material': {} };
 
   var hasRegionFilter = currentRegions.length > 0;
+  var isUSRollup = hasRegionFilter && currentRegions[0] === 'US - Rollup';
   var hasOpsFilter = currentOpsLeads.length > 0;
   var hasParentAccountFilter = currentParentAccounts.length > 0;
   var hasJobFilter = currentJobs.length > 0;
@@ -347,7 +348,9 @@ function processDataFast() {
     var rowYear = getYearFromDate(row['GLPostingDate']);
     if (rowYear !== currentYear) continue;
     if (row['SOURCE'] !== currentSource) continue;
-    if (hasRegionFilter && currentRegions.indexOf(row['Region']) === -1) continue;
+    // US - Rollup: exclude Canada and HQ
+    if (isUSRollup && (row['Region'] === 'Canada' || row['Region'] === 'HQ')) continue;
+    if (hasRegionFilter && !isUSRollup && currentRegions.indexOf(row['Region']) === -1) continue;
     if (hasOpsFilter && currentOpsLeads.indexOf(row['Ops Lead']) === -1) continue;
     if (hasParentAccountFilter && currentParentAccounts.indexOf(row['Parent Account']) === -1) continue;
     if (hasJobFilter && currentJobs.indexOf(row['JobNumber']) === -1) continue;
@@ -397,6 +400,7 @@ function getFilteredUniqueValues(field) {
   if (field === 'YEAR') return Object.keys(uniqueValuesCache['YEAR']).sort();
 
   var hasRegionFilter = currentRegions.length > 0;
+  var isUSRollup = hasRegionFilter && currentRegions[0] === 'US - Rollup';
   var hasOpsFilter = currentOpsLeads.length > 0;
   var hasParentAccountFilter = currentParentAccounts.length > 0;
   var unique = {};
@@ -406,7 +410,9 @@ function getFilteredUniqueValues(field) {
     var rowYear = getYearFromDate(row['GLPostingDate']);
     if (rowYear !== currentYear) continue;
     if (row['SOURCE'] !== currentSource) continue;
-    if (field !== 'Region' && hasRegionFilter && currentRegions.indexOf(row['Region']) === -1) continue;
+    // US - Rollup: exclude Canada and HQ
+    if (field !== 'Region' && isUSRollup && (row['Region'] === 'Canada' || row['Region'] === 'HQ')) continue;
+    if (field !== 'Region' && hasRegionFilter && !isUSRollup && currentRegions.indexOf(row['Region']) === -1) continue;
     if (field !== 'Ops Lead' && field !== 'Region' && hasOpsFilter && currentOpsLeads.indexOf(row['Ops Lead']) === -1) continue;
     if (field !== 'Parent Account' && field !== 'Ops Lead' && field !== 'Region' && hasParentAccountFilter && currentParentAccounts.indexOf(row['Parent Account']) === -1) continue;
     if (row[field]) unique[row[field]] = true;
@@ -580,10 +586,12 @@ function buildPLTable() {
   h.push('</select>');
 
   // Region
+  var isUSRollup = currentRegions.length > 0 && currentRegions[0] === 'US - Rollup';
   h.push('<select id="regionSelect" style="padding:6px 10px;font-size:12px;border:none;border-radius:4px;background:#1a365d;color:white;cursor:pointer;min-width:100px;">');
   h.push('<option value="">All Regions</option>');
+  h.push('<option value="US - Rollup"' + (isUSRollup ? ' selected' : '') + '>US - Rollup</option>');
   for (var i = 0; i < regions.length; i++) {
-    h.push('<option value="' + regions[i] + '"' + (currentRegions.indexOf(regions[i]) > -1 ? ' selected' : '') + '>' + regions[i] + '</option>');
+    h.push('<option value="' + regions[i] + '"' + (!isUSRollup && currentRegions.indexOf(regions[i]) > -1 ? ' selected' : '') + '>' + regions[i] + '</option>');
   }
   h.push('</select>');
 
@@ -743,7 +751,11 @@ function buildPLTable() {
       buildPLTable();
     }
     if (target.id === 'regionSelect') {
-      currentRegions = target.value ? [target.value] : [];
+      if (target.value === 'US - Rollup') {
+        currentRegions = ['US - Rollup']; // Special marker for US rollup
+      } else {
+        currentRegions = target.value ? [target.value] : [];
+      }
       currentOpsLeads = []; currentParentAccounts = []; currentJobs = [];
       buildPLTable();
     }
